@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	mcp "github.com/metoro-io/mcp-golang"
-	"github.com/metoro-io/mcp-golang/transport/stdio"
+	mcp "github.com/artushin/mcp-golang"
+	"github.com/artushin/mcp-golang/transport/stdio"
 )
 
 // HelloArgs represents the arguments for the hello tool

@@ -72,7 +72,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/metoro-io/mcp-golang/transport"
+	"github.com/artushin/mcp-golang/transport"
 )
 
 const DefaultRequestTimeoutMsec = 60000
