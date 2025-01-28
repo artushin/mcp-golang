@@ -177,11 +177,16 @@ func NewServer(transport transport.Transport, options ...ServerOptions) *Server 
 
 // RegisterTool registers a new tool with the server
 func (s *Server) RegisterTool(name string, description string, handler any) error {
+	return s.RegisterToolWithJsonSchemaReflector(name, description, &jsonSchemaReflector, handler)
+}
+
+// RegisterTool registers a new tool with the server
+func (s *Server) RegisterToolWithJsonSchemaReflector(name string, description string, reflector *jsonschema.Reflector, handler any) error {
 	err := validateToolHandler(handler)
 	if err != nil {
 		return err
 	}
-	inputSchema := createJsonSchemaFromHandler(handler)
+	inputSchema := createJsonSchemaFromHandler(handler, reflector)
 
 	s.tools.Store(name, &tool{
 		Name:            name,
@@ -468,7 +473,7 @@ func validatePromptHandler(handler any) error {
 }
 
 // Creates a full JSON schema from a user provided handler by introspecting the arguments
-func createJsonSchemaFromHandler(handler any) *jsonschema.Schema {
+func createJsonSchemaFromHandler(handler any, reflector *jsonschema.Reflector) *jsonschema.Schema {
 	handlerValue := reflect.ValueOf(handler)
 	handlerType := handlerValue.Type()
 	var argumentType reflect.Type
@@ -477,7 +482,12 @@ func createJsonSchemaFromHandler(handler any) *jsonschema.Schema {
 	} else if handlerType.NumIn() == 1 {
 		argumentType = handlerType.In(0)
 	}
-	inputSchema := jsonSchemaReflector.ReflectFromType(argumentType)
+	var inputSchema *jsonschema.Schema
+	if reflector == nil {
+		inputSchema = jsonSchemaReflector.ReflectFromType(argumentType)
+	} else {
+		inputSchema = reflector.ReflectFromType(argumentType)
+	}
 	return inputSchema
 }
 
